@@ -24,8 +24,8 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ChangeEmailDto } from './dto/change-email-admin.dto';
 import { AccountDeletedGuard } from 'src/common/guards/accountDeleted.guard';
-import { UsersService } from 'src/users/users.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UsersService } from 'src/user/users.service';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 
 @ApiBearerAuth()

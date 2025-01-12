@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { CustomConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerModule } from './logger/logger.module';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './user/users.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { ProjectModule } from './project/project.module';
@@ -13,6 +13,8 @@ import { RenderingModule } from './rendering/rendering.module';
 import { FollowModule } from './follow/follow.module';
 import { FeedModule } from './feed/feed.module';
 import { PostModule } from './post/post.module';
+import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 
 
@@ -30,6 +32,8 @@ import { PostModule } from './post/post.module';
     FollowModule,
     RenderingModule,
     BookmarkModule,
+    LikeModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

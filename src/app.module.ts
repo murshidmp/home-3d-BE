@@ -7,6 +7,13 @@ import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './users/users.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { ProjectModule } from './project/project.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
+import { RenderingModule } from './rendering/rendering.module';
+import { FollowModule } from './follow/follow.module';
+import { FeedModule } from './feed/feed.module';
+import { PostModule } from './post/post.module';
+
 
 
 @Module({
@@ -17,6 +24,12 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     AdminModule,
     UsersModule,
+    ProjectModule,
+    PostModule,
+    FeedModule,
+    FollowModule,
+    RenderingModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

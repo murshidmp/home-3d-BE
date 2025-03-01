@@ -1,3 +1,5 @@
+import { access } from "fs";
+
 export default async function loadSecrets() {
   //Custom secrets loader
   return {
@@ -30,7 +32,9 @@ export default async function loadSecrets() {
     },
     jwtSecretKeys: {
       access: process.env.JWT_ACCESS_SECRET,
-      refresh: process.env.JWT_REFRESH_SECRET
+      refresh: process.env.JWT_REFRESH_SECRET,
+      accessExp:process.env.JWT_ACCESS_EXPIRATION,
+      refreshExp:process.env.JWT_REFRESH_EXPIRATION
     }
     //Add more secrets
 

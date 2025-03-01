@@ -8,21 +8,19 @@ import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { User } from '../user/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailService } from 'src/common/services/email.service';
-import { Admin } from '../admin/entities/admin.entity';
-import { AdminModule } from 'src/admin/admin.module';
+
 
 @Module({
   imports: [
     JwtModule.register({}),
     UsersModule,
-    AdminModule,
-    TypeOrmModule.forFeature([User, Admin], 'main'),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    // AccessTokenStrategy,
-    // RefreshTokenStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
     EmailService,
     
   ],

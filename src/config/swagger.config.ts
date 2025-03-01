@@ -17,9 +17,9 @@ export function setupSwagger(app: any): void {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  document.paths = Object.fromEntries(
-    Object.entries(document.paths).map(([path, value]) => [`/v1${path}`, value])
-  );
+  // document.paths = Object.fromEntries(
+  //   Object.entries(document.paths).map(([path, value]) => [`/v1${path}`, value])
+  // );
   
-  SwaggerModule.setup('v1/api', app, document);
+  SwaggerModule.setup('api', app, document);
 }

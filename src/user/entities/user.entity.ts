@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Project } from '../../project/entities/project.entity';
 import { Post } from '../../post/entities/post.entity';
 import { Like } from '../../like/entities/like.entity';
@@ -8,8 +16,9 @@ import { Follow } from '../../follow/entities/follow.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  // 1) Switch from UUID to auto-increment integer
+  @PrimaryGeneratedColumn()
+  id: number; // This will be an INT by default
 
   @Column({ unique: true })
   email: string;
@@ -18,7 +27,7 @@ export class User {
   password: string;
 
   @Column()
-  name: string;
+  username: string;
 
   @Column({ nullable: true })
   profilePicture: string;
@@ -26,12 +35,17 @@ export class User {
   @Column({ nullable: true })
   bio: string;
 
-  @Column({ type: 'enum', enum: ['Free', 'Pro'], default: 'Free' })
+  @Column({
+    type: 'enum',
+    enum: ['Free', 'Pro'],
+    default: 'Free',
+  })
   planType: string;
 
   @Column({ default: 0 })
   renderCredits: number;
 
+  // Foreign key relationships
   @OneToMany(() => Project, (project) => project.user)
   projects: Project[];
 
@@ -52,4 +66,22 @@ export class User {
 
   @OneToMany(() => Follow, (follow) => follow.following)
   followers: Follow[];
+
+  @Column({ nullable: true })
+  refreshToken?: string; // Storing hashed refresh token
+
+  // 2) Auto-manage creation, update, and soft-delete timestamps
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  /**
+   * When you add @DeleteDateColumn, TypeORM can use "soft delete" 
+   * (the record is marked deleted but not physically removed).
+   * If you call repository.softRemove(...), it sets the deletedAt value.
+   */
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

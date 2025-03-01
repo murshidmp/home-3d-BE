@@ -11,18 +11,13 @@ export class CreateUserDto {
   
     @ApiProperty()
     @IsNotEmpty()
-    @IsDate()
+    // @IsDate()
     dob: Date;
   
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
     gender?: string;
-  
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    residence: string;  
    
     @ApiProperty()
     @IsNotEmpty()

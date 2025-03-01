@@ -4,7 +4,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Admin } from 'src/admin/entities/admin.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Role } from '../enums/roles';
@@ -17,8 +16,6 @@ import { Role } from '../enums/roles';
 export class AccountDeletedGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    @InjectRepository(Admin)
-    private adminRepository: Repository<Admin>,
   ) { }
 
   // async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -33,13 +30,13 @@ export class AccountDeletedGuard implements CanActivate {
     ( exmaple if subadmin is suspended by Admin while subadmin is logged in;
       Then need to prevent the access apis till the supplied access token expires ) */
     
-    if (req.user.role === Role.Admin || req.user.role === Role.SubAdmin) { 
-      const adminUser = await this.adminRepository.findOne({ where: { id: req.user['sub'] } });
-      console.log('adminUser', adminUser)
-      if (!adminUser || adminUser.deleted === true || adminUser.status === 'inactive') {
-        return false;
-      }
-    }
+    // if (req.user.role === Role.Admin || req.user.role === Role.SubAdmin) { 
+    //   const adminUser = await this.adminRepository.findOne({ where: { id: req.user['sub'] } });
+    //   console.log('adminUser', adminUser)
+    //   if (!adminUser || adminUser.deleted === true || adminUser.status === 'inactive') {
+    //     return false;
+    //   }
+    // }
     return true
     // if (req.user.role === 'user') {
     //   const user = await User.findOne({ where: { id: req.user['sub'] } });

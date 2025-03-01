@@ -5,7 +5,6 @@ import { CustomConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './user/users.module';
-import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { ProjectModule } from './project/project.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
@@ -24,7 +23,6 @@ import { CommentModule } from './comment/comment.module';
     DatabaseModule,
     LoggerModule,
     AuthModule,
-    AdminModule,
     UsersModule,
     ProjectModule,
     PostModule,

@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres_db:
+    image: postgres:14
+    container_name: postgres_db
+    env_file:
+      - .env
+    environment:
+      # Map NestJS-like envs to official postgres envs
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Optional: If you want a named network, define it here or rely on the default bridge
+
+  # NestJS Application
+  nest_app:
+    container_name: nest_app
+    build:
+      context: .        # Path to your Dockerfile directory
+      dockerfile: Dockerfile
+    env_file:
+      - .env            # This loads environment variables for your NestJS app
+    environment:
+      # Optionally override or set environment variables
+      # e.g. DB_HOST=postgres_db (so Nest can connect to the 'postgres_db' service by container name)
+      - DB_HOST=postgres_db
+      # Or if using .env, ensure DB_HOST=postgres_db is in your .env file
+    ports:
+      - "8080:8080"     # Map NestJS app port to host
+    depends_on:
+      - postgres_db     # Ensure the DB service is started before the NestJS app
+
+volumes:
+  pgdata:

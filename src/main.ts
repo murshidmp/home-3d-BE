@@ -11,10 +11,10 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // Prevent non-whitelisted properties
   }));
   setupSwagger(app);
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1'
-  });
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1'
+  // });
   await app.listen(8080);
 }
 bootstrap();

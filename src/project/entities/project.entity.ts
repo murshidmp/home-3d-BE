@@ -1,11 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Post } from '../../post/entities/post.entity';
 
 @Entity('projects')
 export class Project {
   @PrimaryGeneratedColumn()
-  id: number; // This will be an INT by default
+  id: number;
 
   @ManyToOne(() => User, (user) => user.projects, { onDelete: 'CASCADE' })
   user: User;
@@ -17,7 +26,7 @@ export class Project {
   description: string;
 
   @Column({ type: 'jsonb' })
-  data: object;
+  projectData: object;
 
   @Column({ default: false })
   isRendered: boolean;
@@ -34,11 +43,6 @@ export class Project {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  /**
-   * When you add @DeleteDateColumn, TypeORM can use "soft delete" 
-   * (the record is marked deleted but not physically removed).
-   * If you call repository.softRemove(...), it sets the deletedAt value.
-   */
   @DeleteDateColumn()
   deletedAt?: Date;
 }

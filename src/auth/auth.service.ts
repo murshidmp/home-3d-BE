@@ -69,7 +69,7 @@ export class AuthService extends BaseAuthService {
       },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      expiresIn: this.configService.get<number>('JWT_ACCESS_EXPIRATION'),
+      expiresIn: this.configService.get<number>('jwtSecretKeys.accessExp'),
     };
   }
 

@@ -62,7 +62,7 @@ export class UsersService {
   }
 
   async deleteUser(userId: number): Promise<void> {
-    await this.userRepository.delete(userId);
+    await this.userRepository.softDelete(userId);
   }
 
 }

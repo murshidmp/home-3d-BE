@@ -11,6 +11,7 @@ import {
     Req,
     HttpCode,
     HttpStatus,
+    Query,
   } from '@nestjs/common';
   import { AccessTokenGuard } from '../common/guards/accessToken.guard';
   import { ProjectService } from './project.service';
@@ -18,6 +19,7 @@ import {
   import { UpdateProjectDto } from './dto/update-project.dto';
   import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
   import { ApiSuccessResponse } from '../common/dto/api-response.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination.dto';
   
   @ApiTags('Projects')
   @ApiBearerAuth()
@@ -38,10 +40,10 @@ import {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ApiResponse({ status: 200, description: 'List of user projects.' })
-    async findAll(@Req() req: any) {
+    async findAll(@Req() req: any, @Query() paginationQuery: PaginationQueryDto) {
       const userId = req.user['sub'];
-      const projects = await this.projectService.getProjectsForUser(userId);
-      return ApiSuccessResponse.of(projects, 'Projects fetched');
+      const pagedProjects = await this.projectService.getProjectsForUser(userId, paginationQuery);
+      return ApiSuccessResponse.of(pagedProjects, 'Projects fetched successfully');
     }
   
     @Get(':id')

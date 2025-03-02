@@ -32,7 +32,7 @@ services:
       - DB_HOST=postgres_db
       # Or if using .env, ensure DB_HOST=postgres_db is in your .env file
     ports:
-      - "8080:8080"     # Map NestJS app port to host
+      - "3000:3000"     # Map NestJS app port to host
     depends_on:
       - postgres_db     # Ensure the DB service is started before the NestJS app
 

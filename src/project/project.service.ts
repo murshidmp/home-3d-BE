@@ -6,6 +6,7 @@ import { Project } from './entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from '../user/entities/user.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ProjectService {
@@ -51,11 +52,19 @@ export class ProjectService {
   /**
    * Get all projects for a specific user.
    */
-  async getProjectsForUser(userId: number) {
-    return this.projectRepo.find({
+  async getProjectsForUser(
+    userId: number,
+    pagination: PaginationQueryDto,
+  ): Promise<{ data: Project[]; total: number; page: number; limit: number }> {
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 10;
+    const [projects, total] = await this.projectRepo.findAndCount({
       where: { user: { id: userId } },
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+    return { data: projects, total, page, limit };
   }
 
   /**

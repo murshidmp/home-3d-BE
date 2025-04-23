@@ -11,10 +11,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // Prevent non-whitelisted properties
   }));
   setupSwagger(app);
-  // app.enableVersioning({
-  //   type: VersioningType.URI,
-  //   defaultVersion: '1'
-  // });
   await app.listen(process.env.PORT || 3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

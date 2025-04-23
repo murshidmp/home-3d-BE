@@ -5,9 +5,9 @@ export default async function loadSecrets() {
   return {
     port: process.env.PORT || 3000,
     databaseMain: {
-      host: process.env.DB_HOST || 'localhost', //Defualt to localhost if not provided
-      port: process.env.DB_PORT || 5432, // Default to 5432 if not provided
-      user: process.env.DB_USERNAME || 'postgres', //Default to postgres if not provided
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       name: process.env.DB_NAME,
     },

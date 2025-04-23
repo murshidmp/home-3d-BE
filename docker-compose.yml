@@ -1,21 +1,21 @@
 version: "3.8"
 
 services:
-  # # PostgreSQL Database
-  # postgres_db:
-  #   image: postgres:14
-  #   container_name: postgres_db
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     # Map NestJS-like envs to official postgres envs
-  #     - POSTGRES_USER=${DB_USERNAME}
-  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
-  #     - POSTGRES_DB=${DB_NAME}
-  #   ports:
-  #     - "${DB_PORT}:5432"
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
+  # PostgreSQL Database
+  postgres_db:
+    image: postgres:14
+    container_name: postgres_db
+    env_file:
+      - .env
+    environment:
+      # Map NestJS-like envs to official postgres envs
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   #   # Optional: If you want a named network, define it here or rely on the default bridge
 
   # NestJS Application
@@ -33,8 +33,8 @@ services:
       # Or if using .env, ensure DB_HOST=postgres_db is in your .env file
     ports:
       - "3000:3000"     # Map NestJS app port to host
-    # depends_on:
-    #   - postgres_db     # Ensure the DB service is started before the NestJS app
+    depends_on:
+      - postgres_db     # Ensure the DB service is started before the NestJS app
 
-# volumes:
-#   pgdata:
+volumes:
+  pgdata:

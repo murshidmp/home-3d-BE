@@ -10,5 +10,5 @@ export class UpdateProjectDto {
   description?: string;
 
   @IsOptional()
-  projectData: any;
+  projectData?: Record<string, any>; // Or keep as 'any' if preferred
 }

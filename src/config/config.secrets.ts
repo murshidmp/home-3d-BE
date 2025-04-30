@@ -4,7 +4,7 @@ export default async function loadSecrets() {
   //Custom secrets loader
   return {
     port: process.env.PORT || 3000,
-    databaseMain: {
+    database: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
       user: process.env.DB_USERNAME,

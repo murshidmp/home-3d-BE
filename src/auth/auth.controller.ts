@@ -26,8 +26,6 @@ import { ApiSuccessResponse } from 'src/common/dto/api-response.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // User Auth 🛡️
-
   @Post('user/signup')
   @HttpCode(HttpStatus.CREATED)
   @ApiResponse({ status: 201, description: 'User successfully signed up.' })
@@ -93,5 +91,25 @@ export class AuthController {
   async deleteMyAccount(@Body() data: AuthDto) {
     const result = await this.authService.accountDelete(data);
     return ApiSuccessResponse.of(result, 'Account successfully deleted');
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: 200, description: 'Google login successful.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async googleLogin(@Body('idToken') idToken: string) {
+    const result = await this.authService.googleLogin(idToken);
+    return ApiSuccessResponse.of(result, 'Google login successful');
+  }
+
+  // this is for setting password for the user while signing up with google
+  @UseGuards(AccessTokenGuard)
+  @Post('set-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: 200, description: 'Password set successfully.' })
+  async setPassword(@Req() req: any, @Body('password') password: string) {
+    const userId = req.user['sub'];
+    const result = await this.authService.setPassword(userId, password);
+    return ApiSuccessResponse.of(result, 'Password set successfully');
   }
 }

@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
-
+import { OAuth2Client } from 'google-auth-library';
 import { UsersService } from '../user/users.service';
 import { BaseAuthService } from './base-auth.service';
 import { AuthDto } from './dto/login.dto';
@@ -15,17 +15,17 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService extends BaseAuthService {
+  private googleClient: OAuth2Client;
+
   constructor(
     protected readonly jwtService: JwtService,
     protected readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
     super(jwtService, configService);
+    this.googleClient = new OAuth2Client();
   }
 
-  /**
-   * Signs up a new user (email + password).
-   */
   async userSignUp(createUserDto: CreateUserDto) {
     const existingUser = await this.usersService.findByEmail(createUserDto.email);
     if (existingUser) {
@@ -35,28 +35,22 @@ export class AuthService extends BaseAuthService {
     const hashedPassword = await argon2.hash(createUserDto.password);
     const user = await this.usersService.create({
       ...createUserDto,
-      password: hashedPassword, // Ensure your entity expects `password` or `passwordHash`
+      password: hashedPassword,
     });
 
-    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email);
-    // Store hashed refresh token in DB
     await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 
-    // Return tokens + basic user info
     return {
       userId: user.id,
       email: user.email,
-      username:user.username,
+      username: user.username,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      expiresIn: this.configService.get<number>('jwtSecretKeys.accessExp'), // e.g. 900 seconds
+      expiresIn: this.configService.get<number>('jwtSecretKeys.accessExp'),
     };
   }
 
-  /**
-   * Signs in an existing user (checks credentials).
-   */
   async userSignIn(authDto: AuthDto) {
     const user = await this.validateUser(authDto.email, authDto.password);
     const tokens = await this.generateTokens(user.id, user.email);
@@ -73,25 +67,17 @@ export class AuthService extends BaseAuthService {
     };
   }
 
-  /**
-   * Logs out a user by clearing the refresh token in DB (so it can’t be reused).
-   */
   async userLogout(userId: number) {
-    // Clear the user's refresh token from the DB
     await this.usersService.clearRefreshToken(userId);
     return { message: 'User logged out successfully' };
   }
 
-  /**
-   * Refreshes access/refresh tokens if the provided refresh token is valid.
-   */
   async userRefreshTokens(userId: number, refreshToken: string) {
     const user = await this.usersService.findById(userId);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
 
-    // Verify the stored refresh token against the incoming token
     const refreshMatches = await argon2.verify(user.refreshToken, refreshToken);
     if (!refreshMatches) {
       throw new ForbiddenException('Access Denied');
@@ -111,51 +97,24 @@ export class AuthService extends BaseAuthService {
     };
   }
 
-  /**
-   * Sends a password-reset email with a unique token (not fully implemented).
-   */
   async forgotPasswordUser(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Email not found');
     }
-
-    // Generate a reset token or code here. For example:
-    // const resetToken = randomUUID(); // or a JWT
-    // Save or hash it in DB, then email it to the user
-    // e.g. await this.usersService.saveResetToken(user.id, resetToken);
-    // e.g. await this.emailService.sendPasswordResetEmail(user.email, resetToken);
-
     return { message: 'Password reset email sent (mocked)' };
   }
 
-  /**
-   * Resets the user's password given a valid token (not fully implemented).
-   */
   async resetPasswordUser(token: string, password: string) {
-    // For example:
-    // 1. Validate the token from DB or decode if it's a JWT
-    // 2. If valid, update the user’s password
-    // 3. Clear the reset token so it can’t be reused
-    // This is just a placeholder:
     return { message: `Password successfully reset (token=${token}, newPwd=${password})` };
   }
 
-  /**
-   * Deletes the user account. Basic example.
-   */
   async accountDelete(authDto: AuthDto) {
-    // Re-validate user’s credentials or confirm the user’s identity
     const user = await this.validateUser(authDto.email, authDto.password);
     await this.usersService.deleteUser(user.id);
-
     return { message: 'Account successfully deleted' };
   }
 
-  /**
-   * Validates a user by email and password using argon2.
-   * Throws UnauthorizedException if invalid.
-   */
   private async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
@@ -167,5 +126,48 @@ export class AuthService extends BaseAuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     return user;
+  }
+
+  async googleLogin(idToken: string) {
+    try {
+      
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken,
+        audience: [
+          this.configService.get<string>('google.clientIdWeb'),
+          this.configService.get<string>('google.clientIdAndroid'),
+          this.configService.get<string>('google.clientIdIos'),
+        ].filter(Boolean),
+      });
+      const payload = ticket.getPayload();
+      const googleId = payload['sub'];
+      const email = payload['email'];
+      const username = payload['name'];
+
+      let user = await this.usersService.findByGoogleId(googleId);
+      if (!user) {
+        user = await this.usersService.createGoogleUser(googleId, email, username);
+      }
+
+      const tokens = await this.generateTokens(user.id, user.email);
+      await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+      return {
+        userId: user.id,
+        email: user.email,
+        username: user.username,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: this.configService.get<number>('jwtSecretKeys.accessExp'),
+      };
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw new UnauthorizedException('Invalid Google ID token');
+    }
+  }
+
+  async setPassword(userId: number, password: string) {
+    const hashedPassword = await argon2.hash(password);
+    return await this.usersService.update(userId, { password: hashedPassword });
   }
 }

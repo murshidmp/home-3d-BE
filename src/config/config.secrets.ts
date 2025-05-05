@@ -35,8 +35,14 @@ export default async function loadSecrets() {
       refresh: process.env.JWT_REFRESH_SECRET,
       accessExp:process.env.JWT_ACCESS_EXPIRATION,
       refreshExp:process.env.JWT_REFRESH_EXPIRATION
-    }
-    //Add more secrets
+    },
+    google: {
+      clientIdWeb: process.env.GOOGLE_CLIENT_ID_WEB,
+      clientIdAndroid: process.env.GOOGLE_CLIENT_ID_ANDROID,
+      clientIdIos: process.env.GOOGLE_CLIENT_ID_IOS,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_REDIRECT_URI,
+    },
 
   };
 

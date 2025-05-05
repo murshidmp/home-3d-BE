@@ -11,7 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async checkUserExistence(email: string): Promise<boolean> {
     email = email.toLowerCase();
@@ -51,5 +51,19 @@ export class UsersService {
 
   async deleteUser(userId: number): Promise<void> {
     await this.userRepository.softDelete(userId);
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { googleId } });
+  }
+
+  async createGoogleUser(googleId: string, email: string, username: string): Promise<User> {
+    const user = this.userRepository.create({
+      googleId,
+      email,
+      username,
+      password: '', // No password for Google users
+    });
+    return this.userRepository.save(user);
   }
 }

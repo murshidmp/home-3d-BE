@@ -16,9 +16,8 @@ import { Follow } from '../../follow/entities/follow.entity';
 
 @Entity('users')
 export class User {
-  // 1) Switch from UUID to auto-increment integer
   @PrimaryGeneratedColumn()
-  id: number; // This will be an INT by default
+  id: number;
 
   @Column({ unique: true })
   email: string;
@@ -45,7 +44,9 @@ export class User {
   @Column({ default: 0 })
   renderCredits: number;
 
-  // Foreign key relationships
+  @Column({ unique: true, nullable: true })
+  googleId: string;
+
   @OneToMany(() => Project, (project) => project.user)
   projects: Project[];
 
@@ -68,20 +69,14 @@ export class User {
   followers: Follow[];
 
   @Column({ nullable: true })
-  refreshToken?: string; // Storing hashed refresh token
+  refreshToken?: string;
 
-  // 2) Auto-manage creation, update, and soft-delete timestamps
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  /**
-   * When you add @DeleteDateColumn, TypeORM can use "soft delete" 
-   * (the record is marked deleted but not physically removed).
-   * If you call repository.softRemove(...), it sets the deletedAt value.
-   */
   @DeleteDateColumn()
   deletedAt?: Date;
 }

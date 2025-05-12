@@ -6,6 +6,6 @@ export class AppService {
   constructor(private readonly logger: LoggerService) {}
   getHello(): string {
     this.logger.warn('Hello World! loggedd');
-    return 'Hello World! apr 30 11:45PM';
+    return 'Hello World! May 12 08:45PM';
   }
 }

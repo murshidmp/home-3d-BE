@@ -43,5 +43,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu
+            docker-compose down || true
+            docker system prune -af
+            docker image prune -af
+            df -h
             docker compose pull
             docker compose up -d

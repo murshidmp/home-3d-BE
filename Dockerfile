@@ -1,43 +1,33 @@
-# --------------------------
-# 1) Builder Stage
-# --------------------------
-    FROM node:18-alpine AS builder
+# Final stage
+FROM node:18-alpine AS runner
 
-    # Install build dependencies required for native modules (if needed)
-    RUN apk add --no-cache python3 make g++ 
-    
-    WORKDIR /app
-    
-    # Copy package files and install all dependencies using npm ci for reproducibility
-    COPY package*.json ./
-    RUN npm ci
-    
-    # Copy the rest of your application source code
-    COPY . .
-    
-    # Build the NestJS app (this generates the /dist folder)
-    RUN npm run build
-    
-    # --------------------------
-    # 2) Production Stage
-    # --------------------------
-    FROM node:18-alpine AS runner
-    
-    WORKDIR /app
-    
-    # Copy the built app and package files from the builder stage
-    COPY --from=builder /app/dist ./dist
-    COPY package*.json ./
-    
-    # Install only production dependencies using npm ci (clean install)
-    RUN npm ci --only=production
-    
-    # Set the NODE_ENV to production (optional, but recommended)
-    ENV NODE_ENV=production
-    
-    # Expose the port your NestJS app listens on (default is 3000)
-    EXPOSE 3000
-    
-    # Start the application
-    CMD ["node", "dist/main.js"]
-    
+# Reduce image size by avoiding unnecessary packages
+RUN apk add --no-cache \
+    libstdc++ \
+    libgcc \
+    && rm -rf /var/cache/apk/*
+
+# Set working directory with explicit permissions
+WORKDIR /home/appuser/app
+RUN chown -R appuser:appuser /home/appuser/app
+
+# Create non-root user (security best practice)
+RUN adduser -S appuser
+USER appuser
+
+# Copy only necessary files
+COPY --from=builder /app/dist ./dist
+COPY --chown=appuser:appuser package*.json ./
+
+# Install production dependencies and clean npm cache
+RUN npm ci --only=production --omit=dev && \
+    npm cache clean --force
+
+# Optional: Remove npm itself if not needed at runtime
+RUN if [ -x "$(command -v npm)" ]; then npm remove --global npm; fi
+
+# Set memory and CPU limits (prevents OOM on small instances)
+ENV NODE_OPTIONS=--max-old-space-size=256
+
+# Start the application
+CMD ["node", "dist/main.js"]

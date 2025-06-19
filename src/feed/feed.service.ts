@@ -49,6 +49,48 @@ export class FeedService {
     };
   }
 
+  async getTrendingPosts(limit = 10): Promise<PostResponseDto[]> {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const posts = await this.postRepository.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.project', 'project')
+      .leftJoin('post.likes', 'like')
+      .where('post.deletedAt IS NULL')
+      .andWhere('post.createdAt >= :sevenDaysAgo', { sevenDaysAgo })
+      .groupBy('post.id')
+      .addGroupBy('user.id')
+      .addGroupBy('project.id')
+      .orderBy('COUNT(like.id)', 'DESC')
+      .limit(limit)
+      .getMany();
+
+    return posts.map(post => this.mapPostToDto(post));
+  }
+
+  async getRecentPosts(limit = 10): Promise<PostResponseDto[]> {
+    const posts = await this.postRepository.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.project', 'project')
+      .where('post.deletedAt IS NULL')
+      .orderBy('post.createdAt', 'DESC')
+      .limit(limit)
+      .getMany();
+    return posts.map(post => this.mapPostToDto(post));
+  }
+
+  async getExplorePosts(limit = 10): Promise<PostResponseDto[]> {
+    const posts = await this.postRepository.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.project', 'project')
+      .where('post.deletedAt IS NULL')
+      .orderBy('RANDOM()')
+      .limit(limit)
+      .getMany();
+    return posts.map(post => this.mapPostToDto(post));
+  }
+
   private mapPostToDto(post: Post): PostResponseDto {
     return plainToClass(PostResponseDto, post, {
       excludeExtraneousValues: true,
